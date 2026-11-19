@@ -1,4 +1,4 @@
-# 🎭 Detector de emociones con DistilBERT + Streamlit
+# Detector de emociones con DistilBERT + Streamlit
 
 Aplicación web que recibe una frase en **inglés** y devuelve la emoción que expresa (tristeza, alegría, amor, ira, miedo o sorpresa), la confianza del modelo y un gráfico con las probabilidades de las seis emociones.
 
@@ -55,6 +55,7 @@ proyecto/
 ├── requirements.txt               dependencias
 ├── README.md
 ├── .gitignore                     excluye la carpeta del modelo
+├── .streamlit/config.toml         tema visual (colores y tipografía)
 ├── entrenar_modelo.py             regenera el modelo si no lo tienes
 ├── probar_app.py                  prueba automática de app.py
 ├── capturas/                      capturas de pantalla del README
@@ -65,8 +66,8 @@ proyecto/
 
 **Obligatorias**
 - Campo de texto y botón **Analizar**.
-- Emoción detectada (con emoji) y confianza en porcentaje.
-- Gráfico de barras con las seis emociones, ordenado de mayor a menor y con el porcentaje en cada barra; la emoción ganadora se resalta en otro color.
+- Emoción detectada, confianza en porcentaje y segunda emoción más probable, en tarjetas de resultado.
+- Gráfico de barras con las seis emociones, ordenado de mayor a menor y con el porcentaje en cada barra; cada emoción tiene su color y la ganadora se ve resaltada.
 - Modelo cargado una sola vez con `@st.cache_resource` (Streamlit lo reutiliza en cada interacción).
 - Validaciones: aviso si la frase está vacía (o solo tiene espacios); mensaje de error si la carpeta del modelo no existe o está vacía; si la carpeta existe pero el modelo está dañado, se muestra el error sin que la app se caiga.
 - Frases largas: se usa `truncation=True`, así que el texto se corta a 512 tokens (probado con una frase de ~3000 palabras: no falla).
@@ -74,8 +75,8 @@ proyecto/
 
 **Adicionales implementadas (4)**
 1. **Umbral de confianza:** control deslizante en la barra lateral (50 % por defecto); si la emoción principal queda por debajo, aparece una advertencia.
-2. **Análisis por lotes:** una frase por línea o un archivo CSV (se elige la columna de texto); tabla con emoción, confianza y si supera el umbral, gráfico de distribución y botón para descargar los resultados en CSV.
-3. **Historial:** las frases analizadas en la sesión se guardan con `st.session_state` y se pueden borrar.
+2. **Análisis por lotes:** una frase por línea o un archivo CSV (se elige la columna de texto); resumen (frases analizadas, confianza media y cuántas quedan bajo el umbral), tabla con la confianza como barra de progreso, gráfico de distribución y botón para descargar los resultados en CSV.
+3. **Historial:** las frases analizadas en la sesión se guardan con `st.session_state`; se pueden descargar en CSV o borrar.
 4. **Frases de ejemplo:** seis botones, uno por emoción, que cargan una frase de prueba en el campo de texto.
 
 ## Capturas de pantalla
