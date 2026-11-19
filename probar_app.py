@@ -1,4 +1,5 @@
-"""Prueba automática de app.py con tu modelo real. Uso: python probar_app.py app.py (requiere streamlit>=1.28)."""
+"""Prueba la app sin abrir el navegador, con el modelo real.
+Uso: python probar_app.py app.py"""
 import sys
 from streamlit.testing.v1 import AppTest
 APP = sys.argv[1]
@@ -31,7 +32,6 @@ at.button(key="ej0").click().run()
 print("ejemplo ->", at.text_area(key="texto").value)
 
 # 5) lote
-at.tabs[1]  # pestaña lotes
 at.text_area(key="lote").set_value("I feel so happy\nI am not sad at all\nI love you").run()
 at.button[[b.label for b in at.button].index("Analizar lote")].click().run()
 print("lote -> exc:", at.exception, "| dataframes:", [d.value.to_dict("records") for d in at.dataframe])

@@ -1,7 +1,7 @@
-"""Reproduce el Bloque 4 del notebook de clase y guarda modelo_emociones_distilbert/.
+"""Entrena el modelo igual que en el notebook de clase (hasta el bloque 4.4)
+y lo guarda en modelo_emociones_distilbert/.
 
-Úsalo solo si no tienes la carpeta del modelo (en Colab con GPU T4 tarda ~2 min).
-Equivale a ejecutar el notebook hasta 4.4: mismos hiperparámetros y semilla.
+Solo hace falta si no tienen la carpeta del modelo. En Colab con GPU T4 demora unos 2 minutos.
     pip install "transformers>=5.0" datasets accelerate scikit-learn torch
     python entrenar_modelo.py
 """

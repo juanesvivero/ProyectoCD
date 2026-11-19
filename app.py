@@ -5,12 +5,12 @@ import pandas as pd
 import streamlit as st
 from transformers import pipeline
 
-# ---------------------------------------------------------------- configuración
+# ---------- configuración ----------
 MODEL_DIR = Path(__file__).parent / "modelo_emociones_distilbert"
 IDIOMA_MODELO = "inglés"
 
-# Etiquetas del dataset dair-ai/emotion (orden original del notebook de clase).
-# Si el modelo guardó nombres genéricos (LABEL_0...) o en inglés, se traducen con este mapa.
+# Nombres de las emociones en el mismo orden que usamos en el notebook de clase.
+# Por si el modelo trae las etiquetas como LABEL_0... o en inglés, aquí las pasamos a español.
 ETIQUETAS = {
     "LABEL_0": "tristeza", "LABEL_1": "alegría", "LABEL_2": "amor",
     "LABEL_3": "ira", "LABEL_4": "miedo", "LABEL_5": "sorpresa",
@@ -18,13 +18,13 @@ ETIQUETAS = {
     "anger": "ira", "fear": "miedo", "surprise": "sorpresa",
 }
 
-# Un color fijo por emoción: se usa en el gráfico y en la distribución del lote.
+# Un color para cada emoción (lo usan los dos gráficos)
 COLORES = {
     "Tristeza": "#3B6EA5", "Alegría": "#D99A00", "Amor": "#C2417A",
     "Ira": "#C0392B", "Miedo": "#6B4FA0", "Sorpresa": "#1F9E89",
 }
 
-# Métricas medidas con este modelo sobre el conjunto de prueba (2000 frases), ver README.
+# Resultados que sacamos con el conjunto de prueba (2000 frases), están explicados en el README
 METRICAS_PRUEBA = {"Accuracy": "0,900", "F1-macro": "0,840"}
 
 EJEMPLOS = {
@@ -40,20 +40,20 @@ st.set_page_config(page_title="Detector de emociones", page_icon=":material/psyc
                    layout="centered")
 
 
-# ---------------------------------------------------------------- modelo
+# ---------- modelo ----------
 @st.cache_resource(show_spinner="Cargando el modelo...")
 def cargar_modelo(ruta: str):
-    """Se ejecuta una sola vez; Streamlit reutiliza el pipeline en cada rerun."""
+    # cache_resource hace que el modelo se cargue una sola vez y no en cada click
     return pipeline("text-classification", model=ruta)
 
 
 def traducir(etiqueta: str) -> str:
-    """Devuelve el nombre de la emoción en español y con mayúscula inicial."""
+    # pasa la etiqueta a español y con la primera letra en mayúscula
     return ETIQUETAS.get(etiqueta, etiqueta).capitalize()
 
 
 def a_tabla(salida: list[dict]) -> pd.DataFrame:
-    """Convierte la salida del pipeline (top_k=None) en una tabla ordenada en %."""
+    # arma una tabla con las 6 emociones, de mayor a menor probabilidad
     df = pd.DataFrame(salida)
     df["Emoción"] = df["label"].map(traducir)
     df["Probabilidad (%)"] = (df["score"] * 100).round(2)
@@ -62,25 +62,25 @@ def a_tabla(salida: list[dict]) -> pd.DataFrame:
 
 
 def clasificar(clf, textos: list[str]) -> list[pd.DataFrame]:
-    # truncation=True corta las frases de más de 512 tokens para que el modelo no falle.
+    # truncation=True corta las frases muy largas (más de 512 tokens) para que no dé error
     salidas = clf(textos, top_k=None, truncation=True)
-    # Con un texto, algunas versiones devuelven lista plana de dicts.
+    # con un solo texto a veces devuelve una lista simple en vez de lista de listas
     if salidas and isinstance(salidas[0], dict):
         salidas = [salidas]
     return [a_tabla(s) for s in salidas]
 
 
 def escala_colores():
-    """Escala de Altair que asigna a cada emoción su color de COLORES."""
+    # le dice a Altair qué color usar con cada emoción
     return alt.Scale(domain=list(COLORES), range=list(COLORES.values()))
 
 
 def grafico(df: pd.DataFrame):
-    """Barras horizontales ordenadas; la emoción ganadora se ve opaca y el resto atenuado."""
+    # barras horizontales: la emoción ganadora se ve fuerte y las demás más claras
     df = df.assign(Etiqueta=df["Probabilidad (%)"].map(lambda p: f"{p:.1f} %"))
     ganadora = df.iloc[0]["Emoción"]
     base = alt.Chart(df).encode(
-        # La tabla ya viene ordenada de mayor a menor; se usa ese mismo orden en el eje.
+        # la tabla ya viene ordenada, usamos ese mismo orden en el eje
         y=alt.Y("Emoción:N", sort=df["Emoción"].tolist(), title=None,
                 axis=alt.Axis(labelFontSize=13, ticks=False, domain=False)),
         x=alt.X("Probabilidad (%):Q", scale=alt.Scale(domain=[0, 100]), title=None,
@@ -95,7 +95,7 @@ def grafico(df: pd.DataFrame):
 
 
 def grafico_distribucion(res: pd.DataFrame):
-    """Cuántas frases del lote cayeron en cada emoción."""
+    # cuenta cuántas frases del lote cayeron en cada emoción
     conteo = res["Emoción"].value_counts().rename_axis("Emoción").reset_index(name="Frases")
     return alt.Chart(conteo).mark_bar(cornerRadiusEnd=4, height=22).encode(
         y=alt.Y("Emoción:N", sort="-x", title=None, axis=alt.Axis(ticks=False, domain=False)),
@@ -105,7 +105,7 @@ def grafico_distribucion(res: pd.DataFrame):
     ).properties(height=40 * len(conteo) + 30).configure_view(stroke=None)
 
 
-# Muestra la confianza como barra de progreso dentro de las tablas.
+# para que la confianza se vea como barrita dentro de las tablas
 COLUMNA_CONFIANZA = st.column_config.ProgressColumn(
     "Confianza", min_value=0, max_value=100, format="%.1f %%")
 
@@ -115,7 +115,7 @@ PALABRAS_ES = {"el", "la", "los", "las", "un", "una", "que", "y", "de", "es", "e
 
 
 def parece_espanol(texto: str) -> bool:
-    """Heurística simple: signos/letras propios del español o varias palabras comunes."""
+    # truco simple: busca letras típicas del español (ñ, tildes) o varias palabras comunes
     t = texto.lower()
     if any(c in t for c in "ñ¿¡áéíóú"):
         return True
@@ -127,13 +127,13 @@ def cargar_ejemplo(frase: str):
     st.session_state["texto"] = frase
 
 
-# ---------------------------------------------------------------- encabezado
+# ---------- encabezado ----------
 st.title("Detector de emociones")
 st.caption("Clasificación de frases en seis emociones con un modelo DistilBERT ajustado por el equipo.")
 st.info(f"**Idioma del modelo: {IDIOMA_MODELO}.** Fue entrenado con frases en {IDIOMA_MODELO}; "
         "con otros idiomas los resultados no son confiables.", icon=":material/translate:")
 
-# Validación: carpeta del modelo (debe existir y contener config.json)
+# validación: la carpeta del modelo tiene que existir y tener el config.json
 if not (MODEL_DIR / "config.json").is_file():
     st.error(f"No se encontró la carpeta del modelo `{MODEL_DIR.name}` (o está vacía). "
              "Colócala junto a `app.py` con config.json, pesos y tokenizador (ver README) "
@@ -142,11 +142,11 @@ if not (MODEL_DIR / "config.json").is_file():
 
 try:
     clf = cargar_modelo(str(MODEL_DIR))
-except Exception as e:  # carpeta existe pero está incompleta/corrupta
+except Exception as e:  # la carpeta existe pero el modelo está incompleto o dañado
     st.error(f"No se pudo cargar el modelo: {e}", icon=":material/error:")
     st.stop()
 
-# ---------------------------------------------------------------- barra lateral
+# ---------- barra lateral ----------
 with st.sidebar:
     st.header("Configuración")
     umbral = st.slider("Umbral de confianza (%)", 0, 100, 50,
@@ -168,7 +168,7 @@ tab1, tab2, tab3 = st.tabs([":material/edit_note: Una frase",
                             ":material/table_view: Análisis por lotes",
                             ":material/history: Historial"])
 
-# ---------------------------------------------------------------- una frase
+# ---------- una frase ----------
 with tab1:
     with st.container(border=True):
         st.markdown("**Frases de ejemplo**")
@@ -209,7 +209,7 @@ with tab1:
                 "Frase": texto.strip(), "Emoción": top["Emoción"],
                 "Confianza (%)": float(top["Probabilidad (%)"])})
 
-# ---------------------------------------------------------------- lotes
+# ---------- lotes ----------
 with tab2:
     with st.container(border=True):
         st.markdown("**Varias frases a la vez**: una por línea, o un CSV con una columna de texto.")
@@ -256,7 +256,7 @@ with tab2:
                                "resultados_emociones.csv", "text/csv",
                                icon=":material/download:")
 
-# ---------------------------------------------------------------- historial
+# ---------- historial ----------
 with tab3:
     if st.session_state["historial"]:
         hist = pd.DataFrame(st.session_state["historial"])
