@@ -2,7 +2,7 @@
 
 Aplicación web que recibe una frase en **inglés** y devuelve la emoción que expresa (tristeza, alegría, amor, ira, miedo o sorpresa), la confianza del modelo y un gráfico con las probabilidades de las seis emociones.
 
-**Integrantes:** COMPLETAR: nombres de los integrantes del equipo
+**Integrantes:** Carlos Ortega y Juan Esteban Vivero
 **Materia:** Análisis, Procesamiento y Aplicación de IA — clase «Fine-tuning y evaluación de modelos de lenguaje»
 
 ![Pantalla principal](capturas/01_pantalla_principal.png)
@@ -120,8 +120,6 @@ En el conjunto de prueba el modelo acierta el 90 % de las frases, pero el F1-mac
 
 ## Declaración de uso de IA
 
-COMPLETAR: declaración redactada por el equipo. Debe incluir:
-
-- **Herramientas usadas:** COMPLETAR (por ejemplo ChatGPT, Claude, Copilot).
-- **Para qué partes del proyecto:** COMPLETAR.
-- **Qué verificamos o modificamos nosotros:** COMPLETAR.
+- **Herramientas usadas:** Claude (Anthropic), mediante Claude Code.
+- **Para qué partes del proyecto:** escribir y corregir `app.py`, `requirements.txt` y `.gitignore`, hacer las pruebas de la app, el análisis de errores con nuestro modelo, las capturas de pantalla y este README.
+- **Qué verificamos o modificamos nosotros:** el modelo lo entrenamos nosotros en el notebook de clase. Revisamos el código línea por línea para poder explicarlo, ejecutamos la app con nuestro modelo y comprobamos que los resultados del análisis de errores coincidieran con lo que muestra la app.
