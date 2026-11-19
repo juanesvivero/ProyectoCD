@@ -1,0 +1,19 @@
+# Modelo ajustado (~250 MB): GitHub no acepta archivos de más de 100 MB
+modelo_emociones_distilbert/
+
+# Salidas de entrenamiento
+salida_emociones/
+salida_*/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Sistema
+.DS_Store
+
+# Configuración local de Claude Code
+.claude/
