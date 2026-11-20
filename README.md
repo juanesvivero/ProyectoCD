@@ -4,6 +4,7 @@ App web hecha con Streamlit: se escribe una frase en **inglés** y el modelo dic
 
 **Integrantes:** Carlos Ortega y Juan Esteban Vivero
 **Materia:** Análisis, Procesamiento y Aplicación de IA — clase «Fine-tuning y evaluación de modelos de lenguaje»
+**Video de demostración:** [ver en Google Drive](https://drive.google.com/file/d/1Z12Vvopj3H87cHeXtcR4vr4E1Cb1rGzg/view?usp=sharing)
 
 ![Pantalla principal](capturas/01_pantalla_principal.png)
 
